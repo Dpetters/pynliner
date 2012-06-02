@@ -17,10 +17,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 __version__ = "0.4.0"
 
+import re
 import urllib2
 import cssutils
 from BeautifulSoup import BeautifulSoup
 from soupselect import select
+
+from django.conf import settings as s
+from django.contrib.sites.models import Site
 
 class Pynliner(object):
     """Pynliner class"""
@@ -137,7 +141,8 @@ class Pynliner(object):
             elif url.startswith('/'):
                 url = self.root_url + url
             else:
-                url = self.relative_url + url
+                site = site = Site.objects.get_current()
+                url = "http://" + str(site) + s.STATIC_URL + url
             self.style_string += self._get_url(url)
             tag.extract()
 
@@ -188,9 +193,16 @@ class Pynliner(object):
             for elem in elements:
                 if elem not in elem_prop_map:
                     elem_prop_map[elem] = []
+                # All properties
+                props = rule.style.getProperties()
+
+                # Get rid of ones not supported by email clients
+                props = filter(lambda x: re.compile("rgba").search(x.value)==None, props)
+                props = filter(lambda x: re.compile("gradient").search(x.value)==None, props)
+                #props = filter(lambda x: re.compile("shadow").search(x.name)==None, props)
                 elem_prop_map[elem].append({
                     'specificity': self._get_rule_specificity(rule),
-                    'props': rule.style.getProperties(),
+                    'props': props,
                 })
 
         # build up another property list using selector specificity
