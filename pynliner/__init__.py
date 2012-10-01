@@ -136,7 +136,7 @@ class Pynliner(object):
         link_tags = self.soup.findAll('link', {'rel': 'stylesheet'})
         for tag in link_tags:
             url = tag['href']
-            if url.startswith('http://'):
+            if url.startswith('http://') or url.startswith("https://"):
                 pass
             elif url.startswith('/'):
                 url = self.root_url + url
