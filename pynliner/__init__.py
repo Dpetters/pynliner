@@ -141,8 +141,7 @@ class Pynliner(object):
             elif url.startswith('/'):
                 url = self.root_url + url
             else:
-                site = site = Site.objects.get_current()
-                url = "http://" + str(site) + s.STATIC_URL + url
+                url = self.relative_url + url
             self.style_string += self._get_url(url)
             tag.extract()
 
